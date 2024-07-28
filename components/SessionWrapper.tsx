@@ -5,7 +5,7 @@ import React from "react";
 
 const SessionWrapper = ({ children }: { children: React.ReactNode }) => {
     return (
-        <SessionProvider session={null}>
+        <SessionProvider>
             {children}
         </SessionProvider>
     );
