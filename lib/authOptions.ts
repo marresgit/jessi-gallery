@@ -21,9 +21,7 @@ export const authOptions: NextAuthOptions = {
             const allowedEmail = process.env.ALLOWED_EMAIL;
             if (user.email === allowedEmail) {
                 return true; // Allow sign in
-                console.log(user.email);
             } else {
-                console.log(user.email);
                 return false; // Do not allow sign in}
             }
         }
