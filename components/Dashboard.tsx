@@ -5,6 +5,37 @@ import React from "react";
 
 const Dashboard = () => {
   const { data: session } = useSession();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleBrowseClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      // console.log(files[0]); // Handle the selected files
+      const formData = new FormData();
+      formData.append("file", files[0]);
+
+      try {
+        const response = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (response.ok) {
+          console.log('File uploaded successfully');
+        } else {
+          console.error('Failed to upload file');
+        }
+      } catch (error) {
+        console.error('Error uploading file', error);
+      }
+    }
+  };
 
   return (
       <>
@@ -16,6 +47,18 @@ const Dashboard = () => {
 
                 <p className="text-gray-900">{session.user?.email}</p>
                 <button onClick={() => signOut()} className="mt-5 bg-red-500 text-white px-3 py-1 rounded">Sign out</button>
+              </div>
+              <div className={"p-10 bg-gray-200"}>
+                <h1 className="text-2xl font-semibold text-gray-900">Add image</h1>
+                <button onClick={handleBrowseClick} className="mt-5 bg-blue-400 text-white px-3 py-1 rounded">Browse</button>
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    // className={"hidden"}
+                    // accept={"image/*"}
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                    />
               </div>
             </>
         ) : (
