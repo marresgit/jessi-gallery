@@ -1,37 +1,32 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { NextRequest, NextResponse } from "next/server";
+import path from "path";
+import fs from "fs";
 
-const route = multer({
-  storage: multer.diskStorage({
-    destination: './public/uploads',
-    filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`);
-    },
-  }),
-});
+const UPLOAD_DIR = path.resolve(process.env.ROOT_PATH ?? "", "public/uploads");
 
+export const POST = async (req: NextRequest) => {
+  const formData = await req.formData();
+  const body = Object.fromEntries(formData);
+  const file = (body.file as Blob) || null;
 
-const uploadMiddleware = route.single('file');
+  if (file) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    if (!fs.existsSync(UPLOAD_DIR)) {
+      fs.mkdirSync(UPLOAD_DIR);
+    }
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const handler = (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method === 'POST') {
-    uploadMiddleware(req, res, (err) => {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      res.status(200).json({ data: 'success' });
-    });
+    fs.writeFileSync(
+        path.resolve(UPLOAD_DIR, (body.file as File).name),
+        buffer
+    );
   } else {
-    res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+    return NextResponse.json({
+      success: false,
+    });
   }
-};
 
-export default handler;
+  return NextResponse.json({
+    success: true,
+    name: (body.file as File).name,
+  });
+};

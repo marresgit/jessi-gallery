@@ -14,25 +14,24 @@ const Dashboard = () => {
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files && files.length > 0) {
-      // console.log(files[0]); // Handle the selected files
+    if (e.target.files) {
       const formData = new FormData();
-      formData.append("file", files[0]);
+      Object.values(e.target.files).forEach((file) => {
+      formData.append("file", file);
+      });
 
-      try {
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
-        });
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-        if (response.ok) {
-          console.log('File uploaded successfully');
-        } else {
-          console.error('Failed to upload file');
-        }
-      } catch (error) {
-        console.error('Error uploading file', error);
+      const result = await response.json();
+      if (result.success) {
+        alert("Upload ok : " + result.name);
+        console.log('File uploaded successfully');
+      } else {
+        alert("Upload failed");
+        console.error('Failed to upload file');
       }
     }
   };
@@ -53,6 +52,7 @@ const Dashboard = () => {
                 <button onClick={handleBrowseClick} className="mt-5 bg-blue-400 text-white px-3 py-1 rounded">Browse</button>
                 <input
                     type="file"
+                    name="file"
                     ref={fileInputRef}
                     // className={"hidden"}
                     // accept={"image/*"}
