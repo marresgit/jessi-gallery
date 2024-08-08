@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <SessionWrapper>
-      <html lang="en">
+      <html lang="en" className={"bg-sky-900"}>
         <body className={inter.className}>{children}</body>
       </html>
     </SessionWrapper>
